@@ -1,0 +1,1306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>Blesson's Long Distance Booth ✨</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+<style>
+/* ═══════════════════════════════════════════════
+   RESET & ROOT
+═══════════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+:root{
+  --pink:       #f9a8c9;
+  --pink-light: #fde8f0;
+  --pink-mid:   #f472a8;
+  --lavender:   #c4b5fd;
+  --lav-light:  #ede9fe;
+  --blue:       #93c5fd;
+  --blue-light: #dbeafe;
+  --cream:      #fff8f5;
+  --white:      #ffffff;
+  --text:       #3d2c3e;
+  --text-light: #9c7fa0;
+  --shadow-sm:  0 4px 16px rgba(200,100,150,0.12);
+  --shadow-md:  0 8px 32px rgba(200,100,150,0.18);
+  --shadow-lg:  0 16px 48px rgba(200,100,150,0.22);
+  --radius:     20px;
+  --radius-sm:  12px;
+  --radius-xs:  8px;
+}
+
+html,body{
+  height:100%;
+  font-family:'Nunito',sans-serif;
+  background:var(--cream);
+  color:var(--text);
+  overflow-x:hidden;
+}
+
+/* ═══════════════════════════════════════════════
+   UTILITY
+═══════════════════════════════════════════════ */
+.hidden{display:none!important;}
+.flex{display:flex;}
+.flex-col{flex-direction:column;}
+.items-center{align-items:center;}
+.justify-center{justify-content:center;}
+.gap-8{gap:8px;}
+.gap-12{gap:12px;}
+.gap-16{gap:16px;}
+.gap-20{gap:20px;}
+.text-center{text-align:center;}
+.w-full{width:100%;}
+
+/* ═══════════════════════════════════════════════
+   GLOBAL BACKGROUND BLOBS
+═══════════════════════════════════════════════ */
+body::before,body::after{
+  content:'';
+  position:fixed;
+  border-radius:50%;
+  filter:blur(60px);
+  opacity:0.35;
+  pointer-events:none;
+  z-index:0;
+}
+body::before{
+  width:400px;height:400px;
+  background:var(--pink);
+  top:-100px;left:-100px;
+}
+body::after{
+  width:350px;height:350px;
+  background:var(--lavender);
+  bottom:-80px;right:-80px;
+}
+
+/* ═══════════════════════════════════════════════
+   SCREENS WRAPPER
+═══════════════════════════════════════════════ */
+#app{
+  position:relative;
+  z-index:1;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:16px;
+}
+
+.screen{
+  width:100%;
+  max-width:860px;
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  gap:20px;
+  animation:fadeUp 0.4s ease both;
+}
+.screen.active{display:flex;}
+
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(24px);}
+  to{opacity:1;transform:translateY(0);}
+}
+
+/* ═══════════════════════════════════════════════
+   CARDS / PANELS
+═══════════════════════════════════════════════ */
+.card{
+  background:var(--white);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow-md);
+  padding:28px 24px;
+  width:100%;
+}
+
+/* ═══════════════════════════════════════════════
+   BUTTONS
+═══════════════════════════════════════════════ */
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  padding:14px 28px;
+  border-radius:50px;
+  border:none;
+  font-family:'Nunito',sans-serif;
+  font-weight:800;
+  font-size:1rem;
+  cursor:pointer;
+  transition:transform 0.18s ease,box-shadow 0.18s ease,opacity 0.18s ease;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;
+  white-space:nowrap;
+}
+.btn:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);}
+.btn:active{transform:translateY(0) scale(0.97);}
+.btn:disabled{opacity:0.5;cursor:not-allowed;transform:none!important;}
+
+.btn-primary{
+  background:linear-gradient(135deg,var(--pink-mid),var(--lavender));
+  color:var(--white);
+  box-shadow:0 6px 20px rgba(244,114,168,0.35);
+}
+.btn-secondary{
+  background:var(--white);
+  color:var(--text);
+  border:2px solid var(--pink-light);
+  box-shadow:var(--shadow-sm);
+}
+.btn-secondary:hover{border-color:var(--pink-mid);}
+.btn-sm{padding:10px 20px;font-size:0.88rem;}
+.btn-danger{
+  background:linear-gradient(135deg,#fc8181,#f687b3);
+  color:white;
+  box-shadow:0 6px 20px rgba(252,129,129,0.35);
+}
+
+/* toggle group */
+.toggle-group{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  justify-content:center;
+}
+.toggle-btn{
+  padding:9px 18px;
+  border-radius:50px;
+  border:2px solid #eee;
+  background:var(--white);
+  font-family:'Nunito',sans-serif;
+  font-weight:700;
+  font-size:0.85rem;
+  color:var(--text-light);
+  cursor:pointer;
+  transition:all 0.18s ease;
+}
+.toggle-btn:hover{border-color:var(--pink-mid);color:var(--pink-mid);}
+.toggle-btn.active{
+  background:linear-gradient(135deg,var(--pink-mid),var(--lavender));
+  color:white;
+  border-color:transparent;
+  box-shadow:0 4px 14px rgba(244,114,168,0.3);
+}
+
+/* ═══════════════════════════════════════════════
+   LANDING SCREEN
+═══════════════════════════════════════════════ */
+#screen-landing{
+  padding-top:clamp(30px,8vh,80px);
+  padding-bottom:40px;
+}
+
+.logo-emoji{
+  font-size:clamp(52px,12vw,80px);
+  animation:float 3.5s ease-in-out infinite;
+  filter:drop-shadow(0 8px 20px rgba(244,114,168,0.4));
+}
+@keyframes float{
+  0%,100%{transform:translateY(0) rotate(-3deg);}
+  50%{transform:translateY(-14px) rotate(3deg);}
+}
+
+.landing-title{
+  font-size:clamp(1.6rem,5vw,2.6rem);
+  font-weight:900;
+  line-height:1.2;
+  text-align:center;
+  background:linear-gradient(135deg,var(--pink-mid),var(--lavender));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.landing-sub{
+  font-size:clamp(0.9rem,2.5vw,1.05rem);
+  color:var(--text-light);
+  text-align:center;
+  max-width:360px;
+  line-height:1.7;
+}
+
+/* room card */
+#room-card{
+  background:linear-gradient(135deg,var(--pink-light),var(--lav-light));
+  border-radius:var(--radius);
+  padding:24px;
+  width:100%;
+  max-width:460px;
+}
+
+.room-id-display{
+  background:white;
+  border-radius:var(--radius-sm);
+  padding:14px 18px;
+  font-size:0.85rem;
+  color:var(--text);
+  word-break:break-all;
+  font-weight:700;
+  border:2px dashed var(--pink-mid);
+  text-align:center;
+  letter-spacing:0.5px;
+}
+
+.copy-feedback{
+  font-size:0.8rem;
+  color:var(--pink-mid);
+  font-weight:700;
+  text-align:center;
+  min-height:20px;
+  transition:opacity 0.3s;
+}
+
+/* ═══════════════════════════════════════════════
+   JOINING SCREEN
+═══════════════════════════════════════════════ */
+#screen-join{padding-top:clamp(30px,8vh,80px);}
+.join-title{
+  font-size:1.6rem;
+  font-weight:900;
+  color:var(--text);
+}
+.joining-pulse{
+  width:64px;height:64px;
+  border-radius:50%;
+  background:linear-gradient(135deg,var(--pink-mid),var(--lavender));
+  animation:pulse 1.2s ease-in-out infinite;
+  display:flex;align-items:center;justify-content:center;
+  font-size:28px;
+}
+@keyframes pulse{
+  0%,100%{transform:scale(1);opacity:1;}
+  50%{transform:scale(1.15);opacity:0.8;}
+}
+.join-status{color:var(--text-light);font-size:0.95rem;font-weight:600;}
+
+/* ═══════════════════════════════════════════════
+   BOOTH SCREEN
+═══════════════════════════════════════════════ */
+#screen-booth{padding-top:16px;padding-bottom:24px;}
+
+.booth-title{
+  font-size:clamp(1rem,3vw,1.2rem);
+  font-weight:800;
+  color:var(--text);
+  display:flex;align-items:center;gap:6px;
+}
+
+/* video grid */
+.video-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  width:100%;
+}
+@media(max-width:520px){
+  .video-grid{grid-template-columns:1fr;}
+}
+
+.video-pane{
+  position:relative;
+  border-radius:var(--radius);
+  overflow:hidden;
+  background:#1a0a1e;
+  aspect-ratio:4/3;
+  box-shadow:var(--shadow-md);
+}
+
+.video-pane video{
+  width:100%;height:100%;
+  object-fit:cover;
+  transform:scaleX(-1);
+  display:block;
+}
+
+.pane-label{
+  position:absolute;
+  bottom:10px;left:12px;
+  background:rgba(255,255,255,0.22);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,0.35);
+  padding:4px 12px;
+  border-radius:50px;
+  font-size:0.78rem;
+  font-weight:800;
+  color:white;
+  letter-spacing:0.5px;
+  text-shadow:0 1px 4px rgba(0,0,0,0.3);
+}
+
+/* partner placeholder */
+.partner-placeholder{
+  position:absolute;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  background:linear-gradient(135deg,#2d1b3d,#1a0a2e);
+}
+.spinner{
+  width:44px;height:44px;
+  border:4px solid rgba(255,255,255,0.15);
+  border-top-color:var(--pink-mid);
+  border-radius:50%;
+  animation:spin 0.9s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+.placeholder-text{
+  font-size:0.82rem;
+  color:rgba(255,255,255,0.6);
+  font-weight:700;
+  text-align:center;
+  padding:0 16px;
+}
+
+/* countdown overlay */
+.countdown-overlay{
+  position:absolute;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,0.45);
+  z-index:30;
+}
+.countdown-overlay.show{display:flex;}
+.countdown-num{
+  font-size:clamp(80px,25vw,140px);
+  font-weight:900;
+  color:white;
+  text-shadow:0 4px 32px rgba(244,114,168,0.8);
+  animation:popIn 0.35s ease both;
+}
+@keyframes popIn{
+  from{transform:scale(0.5);opacity:0;}
+  to{transform:scale(1);opacity:1;}
+}
+
+/* flash overlay */
+.flash-overlay{
+  position:fixed;
+  inset:0;
+  background:white;
+  opacity:0;
+  pointer-events:none;
+  z-index:9999;
+  transition:opacity 0.07s;
+}
+.flash-overlay.flash{opacity:1;}
+
+/* photo strip preview (during capture) */
+.strip-preview{
+  display:flex;
+  gap:8px;
+  justify-content:center;
+  flex-wrap:wrap;
+}
+.strip-thumb{
+  width:72px;
+  height:54px;
+  object-fit:cover;
+  border-radius:var(--radius-xs);
+  border:2px solid white;
+  box-shadow:var(--shadow-sm);
+  opacity:0.3;
+  transition:opacity 0.4s;
+}
+.strip-thumb.taken{opacity:1;}
+
+/* take photos button container */
+.booth-actions{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:12px;
+  width:100%;
+}
+
+/* connection status badge */
+.conn-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 14px;
+  border-radius:50px;
+  font-size:0.78rem;
+  font-weight:800;
+  background:var(--white);
+  box-shadow:var(--shadow-sm);
+}
+.conn-dot{
+  width:8px;height:8px;
+  border-radius:50%;
+  background:#ef4444;
+  transition:background 0.3s;
+}
+.conn-dot.connected{
+  background:#22c55e;
+  box-shadow:0 0 6px #22c55e;
+  animation:connPulse 2s ease-in-out infinite;
+}
+@keyframes connPulse{
+  0%,100%{opacity:1;}50%{opacity:0.6;}
+}
+
+/* ═══════════════════════════════════════════════
+   EDITOR SCREEN
+═══════════════════════════════════════════════ */
+#screen-editor{padding-top:16px;padding-bottom:40px;}
+
+.editor-title{
+  font-size:clamp(1.1rem,3.5vw,1.5rem);
+  font-weight:900;
+  text-align:center;
+  background:linear-gradient(135deg,var(--pink-mid),var(--lavender));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+
+.canvas-wrap{
+  width:100%;
+  display:flex;
+  justify-content:center;
+  padding:4px;
+}
+#output-canvas{
+  border-radius:var(--radius);
+  box-shadow:var(--shadow-lg);
+  max-width:100%;
+  height:auto;
+  display:block;
+}
+
+.section-label{
+  font-size:0.78rem;
+  font-weight:800;
+  color:var(--text-light);
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  text-align:center;
+}
+
+.filter-row{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+.filter-item{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
+  cursor:pointer;
+  transition:transform 0.2s;
+}
+.filter-item:hover{transform:translateY(-3px);}
+.filter-swatch{
+  width:52px;height:40px;
+  border-radius:var(--radius-xs);
+  overflow:hidden;
+  border:3px solid transparent;
+  transition:border-color 0.2s,box-shadow 0.2s;
+  box-shadow:var(--shadow-sm);
+}
+.filter-swatch img{
+  width:100%;height:100%;
+  object-fit:cover;
+  display:block;
+}
+.filter-item.active .filter-swatch{
+  border-color:var(--pink-mid);
+  box-shadow:0 0 0 3px rgba(244,114,168,0.3);
+}
+.filter-item-label{
+  font-size:0.72rem;
+  font-weight:800;
+  color:var(--text-light);
+}
+.filter-item.active .filter-item-label{color:var(--pink-mid);}
+
+/* editor controls card */
+.editor-controls{
+  background:white;
+  border-radius:var(--radius);
+  box-shadow:var(--shadow-md);
+  padding:20px;
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+}
+
+.editor-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  justify-content:center;
+}
+
+/* ═══════════════════════════════════════════════
+   ERROR TOAST
+═══════════════════════════════════════════════ */
+#toast{
+  position:fixed;
+  bottom:24px;
+  left:50%;
+  transform:translateX(-50%) translateY(20px);
+  background:#3d2c3e;
+  color:white;
+  padding:12px 24px;
+  border-radius:50px;
+  font-size:0.88rem;
+  font-weight:700;
+  opacity:0;
+  transition:all 0.3s ease;
+  z-index:10000;
+  pointer-events:none;
+  white-space:nowrap;
+  max-width:90vw;
+  text-align:center;
+}
+#toast.show{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+}
+
+/* ═══════════════════════════════════════════════
+   STEP DOTS INDICATOR
+═══════════════════════════════════════════════ */
+.step-dots{
+  display:flex;gap:6px;align-items:center;
+}
+.dot{
+  width:8px;height:8px;
+  border-radius:50%;
+  background:#e5e7eb;
+  transition:all 0.3s;
+}
+.dot.active{
+  background:var(--pink-mid);
+  width:20px;
+  border-radius:4px;
+}
+
+/* ═══════════════════════════════════════════════
+   SCROLLABLE CANVAS AREA ON MOBILE
+═══════════════════════════════════════════════ */
+@media(max-width:520px){
+  .canvas-wrap{overflow-x:auto;}
+}
+</style>
+</head>
+<body>
+
+<!-- Flash effect overlay -->
+<div class="flash-overlay" id="flash-overlay"></div>
+
+<!-- Toast notifications -->
+<div id="toast"></div>
+
+<div id="app">
+
+  <!-- ══════════════════════════════
+       SCREEN: LANDING
+  ══════════════════════════════ -->
+  <section class="screen active" id="screen-landing">
+    <div class="logo-emoji">📸</div>
+
+    <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+      <h1 class="landing-title"> Long<br>Distance Booth ✨</h1>
+      <p class="landing-sub">Take adorable photos with your partner — no matter the distance 💕</p>
+    </div>
+
+    <div class="step-dots">
+      <div class="dot active"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+
+    <button class="btn btn-primary" id="btn-create" onclick="createRoom()" style="font-size:1.1rem;padding:16px 36px;">
+      💕 Create a Room
+    </button>
+
+    <!-- Room creation panel (hidden initially) -->
+    <div id="room-card" class="hidden" style="max-width:460px;display:flex;flex-direction:column;gap:14px;align-items:center;">
+      <p style="font-weight:800;color:var(--text);font-size:1rem;text-align:center;">
+        Share this link with your partner 💌
+      </p>
+      <div class="room-id-display" id="share-url-display">Generating…</div>
+      <button class="btn btn-primary w-full" onclick="copyLink()">
+        📋 Copy Link
+      </button>
+      <div class="copy-feedback" id="copy-feedback"></div>
+      <button class="btn btn-secondary btn-sm" onclick="openBooth()">
+        I've shared it — Open Booth 📷
+      </button>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════
+       SCREEN: JOINING
+  ══════════════════════════════ -->
+  <section class="screen" id="screen-join">
+    <div class="joining-pulse">💕</div>
+    <h2 class="join-title">Connecting…</h2>
+    <p class="join-status" id="join-status">Opening camera & finding your partner</p>
+    <div class="spinner" style="margin-top:8px;"></div>
+  </section>
+
+  <!-- ══════════════════════════════
+       SCREEN: BOOTH
+  ══════════════════════════════ -->
+  <section class="screen" id="screen-booth">
+    <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+      <div class="booth-title">📸 Photo Booth</div>
+      <div class="conn-badge">
+        <div class="conn-dot" id="conn-dot"></div>
+        <span id="conn-text" style="color:var(--text-light);">Waiting…</span>
+      </div>
+    </div>
+
+    <!-- Video feeds -->
+    <div class="video-grid">
+      <!-- Local (You) -->
+      <div class="video-pane" id="pane-local">
+        <video id="video-local" autoplay muted playsinline></video>
+        <div class="countdown-overlay" id="countdown-local">
+          <span class="countdown-num" id="num-local"></span>
+        </div>
+        <div class="pane-label">You 💙</div>
+      </div>
+
+      <!-- Remote (Partner) -->
+      <div class="video-pane" id="pane-remote">
+        <video id="video-remote" autoplay playsinline style="display:none;"></video>
+        <div class="partner-placeholder" id="partner-placeholder">
+          <div class="spinner"></div>
+          <p class="placeholder-text">Waiting for your partner… 💕<br><span style="font-size:0.72rem;opacity:0.7;">Share the link to invite them</span></p>
+        </div>
+        <div class="countdown-overlay" id="countdown-remote">
+          <span class="countdown-num" id="num-remote"></span>
+        </div>
+        <div class="pane-label">Partner 💗</div>
+      </div>
+    </div>
+
+    <!-- Thumbnail strip preview -->
+    <div class="strip-preview" id="strip-preview">
+      <img class="strip-thumb" id="thumb-0" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt=""/>
+      <img class="strip-thumb" id="thumb-1" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt=""/>
+      <img class="strip-thumb" id="thumb-2" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt=""/>
+      <img class="strip-thumb" id="thumb-3" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt=""/>
+    </div>
+
+    <div class="booth-actions">
+      <button class="btn btn-primary" id="btn-take" onclick="initiateCaptureSequence()" style="font-size:1.1rem;padding:16px 44px;" disabled>
+        📸 Take Photos
+      </button>
+      <p id="btn-take-hint" style="font-size:0.8rem;color:var(--text-light);font-weight:700;">
+        Waiting for partner to connect…
+      </p>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════
+       SCREEN: EDITOR
+  ══════════════════════════════ -->
+  <section class="screen" id="screen-editor">
+    <h2 class="editor-title">✨ Your Photo Strip ✨</h2>
+
+    <div class="canvas-wrap">
+      <canvas id="output-canvas"></canvas>
+    </div>
+
+    <div class="editor-controls">
+      <!-- Layout -->
+      <div style="display:flex;flex-direction:column;gap:10px;align-items:center;">
+        <div class="section-label">Layout</div>
+        <div class="toggle-group">
+          <button class="toggle-btn active" id="layout-1x4" onclick="setLayout('1x4')">📜 1×4 Strip</button>
+          <button class="toggle-btn" id="layout-2x2" onclick="setLayout('2x2')">⊞ 2×2 Grid</button>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div style="display:flex;flex-direction:column;gap:10px;align-items:center;">
+        <div class="section-label">Filter</div>
+        <div class="filter-row" id="filter-row">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Background colour -->
+      <div style="display:flex;flex-direction:column;gap:10px;align-items:center;">
+        <div class="section-label">Background</div>
+        <div class="toggle-group" id="bg-group">
+          <button class="toggle-btn active" onclick="setBg('#fde8f0',this)">🩷 Blush</button>
+          <button class="toggle-btn" onclick="setBg('#ede9fe',this)">💜 Lavender</button>
+          <button class="toggle-btn" onclick="setBg('#dbeafe',this)">💙 Baby Blue</button>
+          <button class="toggle-btn" onclick="setBg('#ffffff',this)">🤍 White</button>
+          <button class="toggle-btn" onclick="setBg('#1a1a2e',this)">🖤 Dark</button>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="editor-actions">
+        <button class="btn btn-primary" onclick="downloadStrip()">
+          💾 Download Strip
+        </button>
+        <button class="btn btn-danger" onclick="retake()">
+          🔄 Retake
+        </button>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /#app -->
+
+<!-- Hidden merge canvas -->
+<canvas id="merge-canvas" style="display:none;"></canvas>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════════════ */
+let peer        = null;   // PeerJS instance
+let conn        = null;   // DataConnection
+let mediaConn   = null;   // MediaConnection (call)
+let localStream = null;   // Local camera stream
+let myPeerId    = null;   // My PeerJS ID
+let isHost      = false;  // Did I create the room?
+let partnerPeerId = null; // ID of the other peer
+
+let capturedFrames = []; // Array of {localCanvas, remoteCanvas}
+let isCapturing    = false;
+
+let currentLayout = '1x4';
+let currentFilter = 'normal';
+let currentBg     = '#fde8f0';
+
+// Filter preview uses first captured frame
+let filterSwatchSrc = null;
+
+/* ═══════════════════════════════════════════════════════════════
+   SCREEN MANAGEMENT
+═══════════════════════════════════════════════════════════════ */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════════════════════════ */
+function showToast(msg,duration=3000){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),duration);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PEER SETUP
+═══════════════════════════════════════════════════════════════ */
+function initPeer(idToUse){
+  return new Promise((resolve,reject)=>{
+    peer = new Peer(idToUse,{
+      // Using PeerJS cloud server (free, no backend needed)
+      debug:0
+    });
+    peer.on('open',id=>{
+      myPeerId=id;
+      resolve(id);
+    });
+    peer.on('error',err=>{
+      console.error('PeerJS error:',err);
+      showToast('⚠️ Connection error: '+err.type);
+      reject(err);
+    });
+    peer.on('call',incomingCall=>{
+      // Answer with our local stream
+      incomingCall.answer(localStream);
+      incomingCall.on('stream',remoteStream=>{
+        showRemoteStream(remoteStream);
+      });
+      mediaConn=incomingCall;
+    });
+    peer.on('connection',incomingConn=>{
+      setupDataConn(incomingConn);
+    });
+  });
+}
+
+function setupDataConn(dc){
+  conn=dc;
+  conn.on('open',()=>{
+    updateConnUI(true);
+    // As host: call the partner
+    if(isHost && localStream){
+      callPartner(conn.peer);
+    }
+  });
+  conn.on('data',handleDataMsg);
+  conn.on('close',()=>updateConnUI(false));
+  conn.on('error',e=>console.error('conn error',e));
+}
+
+function callPartner(partnerId){
+  if(!localStream) return;
+  const call=peer.call(partnerId,localStream);
+  call.on('stream',remoteStream=>{
+    showRemoteStream(remoteStream);
+  });
+  mediaConn=call;
+}
+
+function showRemoteStream(stream){
+  const vr=document.getElementById('video-remote');
+  vr.srcObject=stream;
+  vr.style.display='block';
+  document.getElementById('partner-placeholder').style.display='none';
+}
+
+function updateConnUI(connected){
+  const dot=document.getElementById('conn-dot');
+  const txt=document.getElementById('conn-text');
+  const btn=document.getElementById('btn-take');
+  const hint=document.getElementById('btn-take-hint');
+  if(connected){
+    dot.classList.add('connected');
+    txt.textContent='Connected 💕';
+    txt.style.color='#22c55e';
+    btn.disabled=false;
+    hint.textContent='Both of you will see the countdown!';
+  } else {
+    dot.classList.remove('connected');
+    txt.textContent='Disconnected';
+    txt.style.color='var(--text-light)';
+    btn.disabled=true;
+    hint.textContent='Partner disconnected…';
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CAMERA
+═══════════════════════════════════════════════════════════════ */
+async function startCamera(){
+  try{
+    localStream=await navigator.mediaDevices.getUserMedia({
+      video:{facingMode:'user',width:{ideal:1280},height:{ideal:720}},
+      audio:false
+    });
+    const vl=document.getElementById('video-local');
+    vl.srcObject=localStream;
+    await vl.play();
+  } catch(e){
+    showToast('📷 Camera access denied. Please allow camera permissions.');
+    throw e;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ROOM CREATION FLOW
+═══════════════════════════════════════════════════════════════ */
+async function createRoom(){
+  const btn=document.getElementById('btn-create');
+  btn.disabled=true;
+  btn.textContent='⏳ Setting up…';
+  try{
+    // Generate a short friendly room ID
+    const roomId='booth-'+Math.random().toString(36).substr(2,6);
+    await initPeer(roomId);
+    isHost=true;
+    partnerPeerId=null;
+    const shareUrl=window.location.origin+window.location.pathname+'?room='+myPeerId;
+    document.getElementById('share-url-display').textContent=shareUrl;
+    document.getElementById('room-card').classList.remove('hidden');
+    document.getElementById('room-card').style.display='flex';
+    btn.textContent='✓ Room Created!';
+    btn.disabled=true;
+  } catch(e){
+    btn.disabled=false;
+    btn.textContent='💕 Create a Room';
+    showToast('Failed to create room. Check your internet connection.');
+  }
+}
+
+function copyLink(){
+  const url=document.getElementById('share-url-display').textContent;
+  navigator.clipboard.writeText(url).then(()=>{
+    const fb=document.getElementById('copy-feedback');
+    fb.textContent='✓ Copied! Send this to your partner 💌';
+    setTimeout(()=>fb.textContent='',3000);
+  }).catch(()=>{
+    // Fallback
+    const ta=document.createElement('textarea');
+    ta.value=url;ta.style.position='fixed';ta.style.opacity='0';
+    document.body.appendChild(ta);ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    const fb=document.getElementById('copy-feedback');
+    fb.textContent='✓ Copied!';
+    setTimeout(()=>fb.textContent='',3000);
+  });
+}
+
+async function openBooth(){
+  showScreen('booth');
+  await startCamera();
+  // Listen for partner to connect (peer.on('connection') already set up in initPeer)
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   JOIN FLOW (partner opens link with ?room=)
+═══════════════════════════════════════════════════════════════ */
+async function joinRoom(hostPeerId){
+  showScreen('join');
+  document.getElementById('join-status').textContent='Opening your camera…';
+  try{
+    await startCamera();
+    document.getElementById('join-status').textContent='Connecting to your partner…';
+    await initPeer(undefined); // Let PeerJS assign random ID
+    isHost=false;
+    partnerPeerId=hostPeerId;
+    // Connect data channel to host
+    const dc=peer.connect(hostPeerId,{reliable:true});
+    setupDataConn(dc);
+    dc.on('open',()=>{
+      showScreen('booth');
+      // Call the host
+      callPartner(hostPeerId);
+    });
+    dc.on('error',e=>{
+      showToast('Could not connect to room. Link may be expired.');
+      showScreen('landing');
+    });
+  } catch(e){
+    showToast('Failed to join. Try refreshing.');
+    showScreen('landing');
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   DATA MESSAGING
+═══════════════════════════════════════════════════════════════ */
+function sendMsg(type,payload={}){
+  if(conn && conn.open) conn.send(JSON.stringify({type,...payload}));
+}
+
+function handleDataMsg(raw){
+  let msg;
+  try{ msg=JSON.parse(raw); } catch(e){ return; }
+  if(msg.type==='start-capture') runCaptureSequence();
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CAPTURE SEQUENCE (synchronized)
+═══════════════════════════════════════════════════════════════ */
+function initiateCaptureSequence(){
+  if(isCapturing) return;
+  // Tell partner to start too
+  sendMsg('start-capture');
+  runCaptureSequence();
+}
+
+async function runCaptureSequence(){
+  if(isCapturing) return;
+  isCapturing=true;
+  document.getElementById('btn-take').disabled=true;
+  document.getElementById('btn-take-hint').textContent='Get ready! 📸';
+
+  // Reset thumbnails
+  capturedFrames=[];
+  for(let i=0;i<4;i++){
+    const t=document.getElementById('thumb-'+i);
+    t.classList.remove('taken');
+    t.src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+  }
+
+  // 3-2-1 countdown
+  await countdownSequence(3);
+
+  // Capture 4 photos
+  for(let i=0;i<4;i++){
+    await captureFrame(i);
+    if(i<3) await delay(700);
+  }
+
+  isCapturing=false;
+  // Go to editor
+  setTimeout(()=>{
+    buildEditor();
+    showScreen('editor');
+  },400);
+}
+
+async function countdownSequence(from){
+  const olL=document.getElementById('countdown-local');
+  const olR=document.getElementById('countdown-remote');
+  const nL=document.getElementById('num-local');
+  const nR=document.getElementById('num-remote');
+  olL.classList.add('show');olR.classList.add('show');
+  for(let n=from;n>=1;n--){
+    nL.textContent=nR.textContent=n;
+    // Re-trigger animation
+    nL.style.animation='none';nR.style.animation='none';
+    await delay(50);
+    nL.style.animation='';nR.style.animation='';
+    await delay(900);
+  }
+  olL.classList.remove('show');olR.classList.remove('show');
+}
+
+async function captureFrame(index){
+  const vl=document.getElementById('video-local');
+  const vr=document.getElementById('video-remote');
+  const mc=document.getElementById('merge-canvas');
+  const ctx=mc.getContext('2d');
+
+  const vw=vl.videoWidth||640;
+  const vh=vl.videoHeight||480;
+  mc.width=vw*2;
+  mc.height=vh;
+
+  // Draw local (mirror)
+  ctx.save();
+  ctx.translate(vw,0);ctx.scale(-1,1);
+  ctx.drawImage(vl,0,0,vw,vh);
+  ctx.restore();
+
+  // Draw remote (or mirror local if no partner video)
+  const hasRemote=vr.srcObject && vr.videoWidth>0;
+  ctx.save();
+  ctx.translate(vw*2,0);ctx.scale(-1,1);
+  if(hasRemote) ctx.drawImage(vr,vw,0,vw,vh);
+  else { ctx.translate(vw,0);ctx.scale(-1,1);ctx.drawImage(vl,0,0,vw,vh); }
+  ctx.restore();
+
+  const url=mc.toDataURL('image/jpeg',0.92);
+  capturedFrames.push(url);
+
+  // Flash
+  doFlash();
+
+  // Update thumbnail
+  const t=document.getElementById('thumb-'+index);
+  t.src=url;t.classList.add('taken');
+}
+
+function doFlash(){
+  const fl=document.getElementById('flash-overlay');
+  fl.style.opacity='1';
+  setTimeout(()=>{fl.style.opacity='0';},100);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   EDITOR
+═══════════════════════════════════════════════════════════════ */
+function buildEditor(){
+  // Build filter swatches using first frame
+  filterSwatchSrc=capturedFrames[0]||null;
+  buildFilterSwatches();
+  renderOutput();
+}
+
+const FILTERS={
+  normal:{label:'Normal',fn:null},
+  pastel:{label:'Pastel',fn:applyPastel},
+  vintage:{label:'Vintage',fn:applyVintage},
+  bw:{label:'B&W',fn:applyBW},
+};
+
+function buildFilterSwatches(){
+  const row=document.getElementById('filter-row');
+  row.innerHTML='';
+  Object.entries(FILTERS).forEach(([key,f])=>{
+    const item=document.createElement('div');
+    item.className='filter-item'+(key===currentFilter?' active':'');
+    item.onclick=()=>{ currentFilter=key; renderOutput(); updateFilterUI(); };
+    item.dataset.key=key;
+
+    const swatch=document.createElement('div');
+    swatch.className='filter-swatch';
+    const img=document.createElement('img');
+    if(filterSwatchSrc) img.src=filterSwatchSrc;
+    img.alt=f.label;
+    // Apply CSS filter approximation for swatch visuals
+    if(key==='bw') img.style.filter='grayscale(100%)';
+    else if(key==='pastel') img.style.filter='brightness(1.15) saturate(0.7)';
+    else if(key==='vintage') img.style.filter='sepia(60%) brightness(1.05)';
+    swatch.appendChild(img);
+
+    const lbl=document.createElement('div');
+    lbl.className='filter-item-label';
+    lbl.textContent=f.label;
+
+    item.appendChild(swatch);item.appendChild(lbl);
+    row.appendChild(item);
+  });
+}
+
+function updateFilterUI(){
+  document.querySelectorAll('.filter-item').forEach(el=>{
+    el.classList.toggle('active',el.dataset.key===currentFilter);
+  });
+}
+
+function setLayout(l){
+  currentLayout=l;
+  document.getElementById('layout-1x4').classList.toggle('active',l==='1x4');
+  document.getElementById('layout-2x2').classList.toggle('active',l==='2x2');
+  renderOutput();
+}
+
+function setBg(color,btn){
+  currentBg=color;
+  document.querySelectorAll('#bg-group .toggle-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderOutput();
+}
+
+/* ── Render Output Canvas ── */
+async function renderOutput(){
+  if(!capturedFrames.length) return;
+  const canvas=document.getElementById('output-canvas');
+  const ctx=canvas.getContext('2d');
+
+  const PAD=24, GAP=10;
+  const FRAME_W=340, FRAME_H=Math.round(FRAME_W*9/32); // composite is 2:1 ratio per half → half-frame ≈ 340×191
+
+  let cw,ch;
+  if(currentLayout==='1x4'){
+    cw=FRAME_W+PAD*2;
+    ch=FRAME_H*4+GAP*3+PAD*2;
+  } else {
+    cw=FRAME_W*2+GAP+PAD*2;
+    ch=FRAME_H*2+GAP+PAD*2;
+  }
+  canvas.width=cw;canvas.height=ch;
+
+  // Background
+  ctx.fillStyle=currentBg;
+  ctx.fillRect(0,0,cw,ch);
+
+  // Load images
+  const imgs=await Promise.all(capturedFrames.map(loadImg));
+
+  for(let i=0;i<4;i++){
+    let x,y;
+    if(currentLayout==='1x4'){
+      x=PAD; y=PAD+i*(FRAME_H+GAP);
+    } else {
+      x=PAD+(i%2)*(FRAME_W+GAP);
+      y=PAD+Math.floor(i/2)*(FRAME_H+GAP);
+    }
+    drawRounded(ctx,imgs[i],x,y,FRAME_W,FRAME_H,10);
+  }
+
+  // Apply pixel filter
+  const filterFn=FILTERS[currentFilter]?.fn;
+  if(filterFn){
+    const id=ctx.getImageData(0,0,cw,ch);
+    filterFn(id.data);
+    ctx.putImageData(id,0,0);
+  }
+
+  // Date watermark
+  ctx.save();
+  ctx.globalAlpha=0.35;
+  ctx.fillStyle=currentBg==='#1a1a2e'?'#ffffff':'#3d2c3e';
+  ctx.font='bold 11px Nunito, sans-serif';
+  ctx.textAlign='center';
+  const dateStr='📸 '+new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+  ctx.fillText(dateStr,cw/2,ch-8);
+  ctx.restore();
+}
+
+function loadImg(src){
+  return new Promise(res=>{
+    const i=new Image();i.onload=()=>res(i);i.src=src;
+  });
+}
+
+function drawRounded(ctx,img,x,y,w,h,r){
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.closePath();ctx.clip();
+  ctx.drawImage(img,x,y,w,h);
+  ctx.restore();
+}
+
+/* ── Pixel Filters ── */
+function applyBW(d){
+  for(let i=0;i<d.length;i+=4){
+    const g=d[i]*0.299+d[i+1]*0.587+d[i+2]*0.114;
+    d[i]=d[i+1]=d[i+2]=g;
+  }
+}
+function applyPastel(d){
+  for(let i=0;i<d.length;i+=4){
+    d[i]=Math.min(255,d[i]*0.85+60);
+    d[i+1]=Math.min(255,d[i+1]*0.85+55);
+    d[i+2]=Math.min(255,d[i+2]*0.85+70);
+  }
+}
+function applyVintage(d){
+  for(let i=0;i<d.length;i+=4){
+    const r=d[i],g=d[i+1],b=d[i+2];
+    d[i]=Math.min(255,r*0.45+g*0.35+b*0.12+40);
+    d[i+1]=Math.min(255,r*0.34+g*0.30+b*0.10+30);
+    d[i+2]=Math.min(255,r*0.26+g*0.24+b*0.14+18);
+  }
+}
+
+/* ── Download ── */
+function downloadStrip(){
+  const canvas=document.getElementById('output-canvas');
+  const link=document.createElement('a');
+  link.download='photo-booth-'+Date.now()+'.png';
+  link.href=canvas.toDataURL('image/png');
+  link.click();
+  showToast('💾 Saving your memories…');
+}
+
+/* ── Retake ── */
+function retake(){
+  capturedFrames=[];
+  showScreen('booth');
+  document.getElementById('btn-take').disabled=!(conn&&conn.open);
+  document.getElementById('btn-take-hint').textContent=
+    conn&&conn.open?'Both of you will see the countdown!':'Waiting for partner to connect…';
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   UTILITY
+═══════════════════════════════════════════════════════════════ */
+function delay(ms){return new Promise(r=>setTimeout(r,ms));}
+
+/* ═══════════════════════════════════════════════════════════════
+   BOOT — check URL for ?room= param
+═══════════════════════════════════════════════════════════════ */
+(function boot(){
+  const params=new URLSearchParams(window.location.search);
+  const roomId=params.get('room');
+  if(roomId){
+    joinRoom(roomId);
+  }
+  // else: stay on landing
+})();
+</script>
+</body>
+</html>
